@@ -7,28 +7,63 @@ import java.io.Writer;
 
 public class FileSynchronizer {
 	private Configuration config;
+	private SynchronizeUtil util;
 
-	public FileSynchronizer(Configuration config) {
+	public FileSynchronizer(Configuration config) throws IOException {
 		this.config = config;
+		util = new SynchronizeUtil();
+		util.addToExpected(config.getServerApps().getAbsoluteFile().getCanonicalFile());
 	}
 
-	// repository/ -> repository/
-	// META-INF/ -> META-INF
-
-	public void syncFiles(String application) throws IOException {
-		File appTargetDir = config.getWorkspaceAppTarget(application);
+	public void synchronizeApplications() throws Exception {
+		for (String appName : config.getApplications()) {
+			syncFiles(appName);
+		}
+		util.deleteUnexpectedNodes(config.getServerApps());
+	}
+	
+	public void syncFiles(String application) throws Exception {
+		File workspaceAppDir = config.getWorkspaceApp(application);
+		File workspaceAppTargetDir = new File(workspaceAppDir, "target");
 		File muleAppDir = config.getServerMuleApp(application);
-		SynchronizeUtil util = new SynchronizeUtil();
+		runMavenWhenPomIsChangedOrMissing(workspaceAppDir, muleAppDir, application);
 
 		// class files (and resources) to application root directory
-		util.syncFileOrDirectory(new File(appTargetDir, "classes"), muleAppDir);
+		util.syncFileOrDirectory(new File(workspaceAppTargetDir, "classes"), muleAppDir);
 		// the repository with all the jars
-		util.syncFileOrDirectory(new File(appTargetDir, "repository"), new File(muleAppDir, "repository"));
+		util.syncFileOrDirectory(new File(workspaceAppTargetDir, "repository"), new File(muleAppDir, "repository"));
 		// META-INF
-		util.syncFileOrDirectory(new File(appTargetDir, "META-INF"), new File(muleAppDir, "META-INF"));
+		util.syncFileOrDirectory(new File(workspaceAppTargetDir, "META-INF"), new File(muleAppDir, "META-INF"));
 				
 		if (util.haveDectectedChanges()) {
 			touchAnchorFile(application);
+		}
+	}
+	
+	private void runMavenWhenPomIsChangedOrMissing(File workspaceAppDir, File muleAppDir, String application) throws Exception {
+		File workspacePom = new File(workspaceAppDir, "pom.xml");
+		File muleAppDirPom = new File(new File(new File(new File(muleAppDir, "META-INF"), "mule-src"), application), "pom.xml");
+		boolean haveToRunMavenBuild = !muleAppDirPom.exists();
+		haveToRunMavenBuild = haveToRunMavenBuild || workspacePom.lastModified() > muleAppDir.lastModified();
+		if (haveToRunMavenBuild) {
+			runMaven(workspaceAppDir);
+		}
+	}
+
+
+	private void runMaven(File workspaceAppDir) throws Exception {
+		String[] cmdarray = new String[] { config.getMavenExecutable(), "clean", "package" };
+		Process p = Runtime.getRuntime().exec(cmdarray, null /* String[] env, null defaults to env of current VM */,
+				workspaceAppDir /* working dir */);
+		TextForwarder stderr = new TextForwarder(p.getErrorStream(), System.err, "stderr");
+		stderr.start();
+		TextForwarder stdout = new TextForwarder(p.getInputStream(), System.out, "stdout");
+		stdout.start();
+		int exitCode = p.waitFor();
+		stdout.join();
+		stderr.join();
+		if (exitCode != 0) {
+			System.out.println("exit code of Maven: " + exitCode);
 		}
 	}
 
@@ -43,5 +78,6 @@ public class FileSynchronizer {
 			w.append(content);
 			w.close();
 		}
+		util.addToExpected(anchorFile.getAbsoluteFile().getCanonicalFile());
 	}
 }

@@ -1,6 +1,5 @@
 package de.codecentric.mule;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,31 +7,22 @@ import java.net.Socket;
 public class MuleStarter {
 
 	public static void main(String[] args) throws Exception {
-		Configuration config = new Configuration(new File("C:\\java\\mule\\workspace4"), new File("C:/java/mule/mule-enterprise-standalone-4.3.0"));
-		System.out.println(config.getWorkspaceDir().getAbsolutePath());
-		System.out.println(config.getMuleHome().getAbsolutePath());
+		Configuration config = new Configuration(args);
+		System.out.println("workspace: " + config.getWorkspaceDir().getAbsolutePath());
+		System.out.println("Mule home: " + config.getMuleHome().getAbsolutePath());
+		System.out.println();
+
+		// For all applications, check is a Maven build is necessary, after that synchronize files/directories
 		FileSynchronizer synchronizer = new FileSynchronizer(config);
-		synchronizer.syncFiles("bmi-description-system");
-		startMule(config);
+		synchronizer.synchronizeApplications();
+		
+
+//		startMule(config);
 	}
 
 	private static void startMule(Configuration config) throws Exception {
-		String[] cmdarray = new String[] {
-				config.getWrapperPath(),
-			"-c",	
-			config.getWrapperConfPath(), //
-			"set.MULE_APP='mule_ee'",	
-			"set.MULE_APP_LONG='Mule Enterprise Edition'",	
-			"set.MULE_HOME=" + config.getMuleHomePath() + "", //
-			"set.MULE_BASE=" + config.getMuleHomePath() + "", //
-			"set.MULE_LIB=", // 
-			"wrapper.working.dir=" + config.getMuleHomeBinPath()	
-			// wrapper.app.parameter.1= 
-		};
-
-		for (String s: cmdarray) {
-			System.out.println(s);
-		}
+		String[] cmdarray = config.getMuleCommandWithArguments().toArray(new String[0]);
+		
 		Process p = Runtime.getRuntime().exec(cmdarray, null /* String[] env, null defaults to env of current VM */,
 				config.getMuleHome() /* working dir */);
 		TextForwarder stderr = new TextForwarder(p.getErrorStream(), System.err, "stderr");

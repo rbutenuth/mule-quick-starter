@@ -28,7 +28,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>de.codecentric.mule.Starter</mainClass>
+							<mainClass>de.codecentric.mule.MuleStarter</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
