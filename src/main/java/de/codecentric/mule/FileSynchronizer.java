@@ -52,7 +52,7 @@ public class FileSynchronizer {
 
 
 	private void runMaven(File workspaceAppDir) throws Exception {
-		String[] cmdarray = new String[] { config.getMavenExecutable(), "clean", "package" };
+		String[] cmdarray = new String[] { config.getMavenExecutable(), "clean", "package", "-DskipTests=true" };
 		Process p = Runtime.getRuntime().exec(cmdarray, null /* String[] env, null defaults to env of current VM */,
 				workspaceAppDir /* working dir */);
 		TextForwarder stderr = new TextForwarder(p.getErrorStream(), System.err, "stderr");

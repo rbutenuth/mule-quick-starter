@@ -11,6 +11,11 @@ public enum OperatingSystem {
 		String getMavenExecutable() {
 			return "mvn.cmd";
 		}
+
+		@Override
+		String getKillCommand() {
+			return "taskkill /F /IM " + getWrapperExecutable();
+		}
 	},
 	LINUX_X86 {
 		@Override
@@ -22,11 +27,16 @@ public enum OperatingSystem {
 		String getMavenExecutable() {
 			return "mvn";
 		}
+
+		@Override
+		String getKillCommand() {
+			return "pkill -9 " + getWrapperExecutable();
+		}
 	};
 	
 	abstract String getWrapperExecutable();
-	
 	abstract String getMavenExecutable();
+	abstract String getKillCommand();
 	
 	public static OperatingSystem determineOperatingSystem() {
 		// possible values:

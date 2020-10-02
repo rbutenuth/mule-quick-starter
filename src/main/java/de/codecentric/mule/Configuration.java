@@ -15,6 +15,7 @@ public class Configuration {
 	private int port;
 	private boolean stop;
 	private boolean kill;
+	private boolean synchronize;
 
 	public Configuration(String[] args) throws IOException {
 		os = OperatingSystem.determineOperatingSystem();
@@ -45,6 +46,9 @@ public class Configuration {
 			} else if ("-s".equals(args[i])) {
 				stop = true;
 				i++;
+			} else if ("-c".equals(args[i])) {
+				synchronize = true;
+				i++;
 			} else {
 				applications.add(args[i]);
 				i++;
@@ -53,10 +57,6 @@ public class Configuration {
 		checkApplicationDirectories();
 		if (withDebug) {
 			run = true;
-		}
-		if (stop) {
-			run = false;
-			withDebug = false;
 		}
 	}
 
@@ -74,6 +74,10 @@ public class Configuration {
 
 	public boolean isKill() {
 		return kill;
+	}
+
+	public boolean isSynchronize() {
+		return synchronize;
 	}
 
 	public int getPort() {
@@ -104,7 +108,16 @@ public class Configuration {
 		cmdList.add("set.MULE_LIB=");
 		cmdList.add("wrapper.working.dir=" + getMuleHomeBinPath());
 		if (withDebug) {
-			cmdList.add("wrapper.app.parameter.1=-debug");
+			cmdList.add("wrapper.app.parameter.1=-M-Dmule.debug.enable");
+			cmdList.add("wrapper.app.parameter.2=true");
+			cmdList.add("wrapper.app.parameter.3=-M-Dmule.debug.port");
+			cmdList.add("wrapper.app.parameter.4=6666");
+			cmdList.add("wrapper.app.parameter.5=-M-Dmule.timeout.disable");
+			cmdList.add("wrapper.app.parameter.6=true");
+			cmdList.add("wrapper.app.parameter.7=-M-Dmule.debug.suspend");
+			cmdList.add("wrapper.app.parameter.8=false");
+			cmdList.add("wrapper.app.parameter.9=-M-agentlib:jdwp=transport");
+			cmdList.add("wrapper.app.parameter.10=dt_socket,server=y,suspend=n,address=57310");
 		}
 		return cmdList;
 	}
@@ -146,6 +159,10 @@ public class Configuration {
 
 	public String getMavenExecutable() {
 		return os.getMavenExecutable();
+	}
+	
+	public String getKillCommand() {
+		return os.getKillCommand();
 	}
 
 	public String getWrapperConfPath() {

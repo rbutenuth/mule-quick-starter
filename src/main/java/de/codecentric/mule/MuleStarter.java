@@ -12,12 +12,32 @@ public class MuleStarter {
 		System.out.println("Mule home: " + config.getMuleHome().getAbsolutePath());
 		System.out.println();
 
-		// For all applications, check is a Maven build is necessary, after that synchronize files/directories
-		FileSynchronizer synchronizer = new FileSynchronizer(config);
-		synchronizer.synchronizeApplications();
-		
+		if (config.isStop()) {
+			try {
+				Socket s = new Socket("localhost", config.getPort());
+				s.close();
+			} catch (IOException e) {
+				System.out.println("Stopping via socket connect failed: " + e.getMessage());
+			}
+		}
 
-//		startMule(config);
+		if (config.isKill()) {
+			try {
+				Runtime.getRuntime().exec(config.getKillCommand());
+			} catch (Exception e) {
+				System.out.println("Kill via command failed: " + e.getMessage());
+			}
+		}
+
+		if (config.isSynchronize()) {
+			// For all applications, check is a Maven build is necessary, after that synchronize files/directories
+			FileSynchronizer synchronizer = new FileSynchronizer(config);
+			synchronizer.synchronizeApplications();
+		}
+
+		if (config.isRun()) {
+			startMule(config);
+		}
 	}
 
 	private static void startMule(Configuration config) throws Exception {
@@ -37,7 +57,7 @@ public class MuleStarter {
 			}
 
 		});
-		waitOnSocketForShutdown();
+		waitOnSocketForShutdown(config);
 		p.destroy();
 		int exitCode = p.waitFor();
 		stdout.join();
@@ -47,9 +67,9 @@ public class MuleStarter {
 		}
 	}
 
-	private static void waitOnSocketForShutdown() throws IOException {
-		System.out.println("Wait for socket connection on port 4712...");
-		ServerSocket socket = new ServerSocket(4712);
+	private static void waitOnSocketForShutdown(Configuration config) throws IOException {
+		System.out.println("Wait for socket connection on port " + config.getPort());
+		ServerSocket socket = new ServerSocket(config.getPort());
 		Socket s = socket.accept();
 		s.close();
 		socket.close();
