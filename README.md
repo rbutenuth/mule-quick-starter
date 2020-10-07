@@ -4,8 +4,8 @@ A tool for faster startup of Mule applications from AnypointStudio
 
 ## Command line options
 
-* -m <mule-home-directory>, default is ../
-* -w <workspace-directory>, default is ../../mule-enterprise-standalone-4.3.0/
+* -w <workspace-directory>, default is ../
+* -m <mule-home-directory>, default is ../../mule-enterprise-standalone-4.3.0/
 * -r run Mule applications
 * -d debug Mule applications (does currently not work)
 * -p port for communicatingwith the starter for clean termination, default 4712

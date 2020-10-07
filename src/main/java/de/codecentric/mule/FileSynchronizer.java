@@ -12,7 +12,7 @@ public class FileSynchronizer {
 	public FileSynchronizer(Configuration config) throws IOException {
 		this.config = config;
 		util = new SynchronizeUtil();
-		util.addToExpected(config.getServerApps().getAbsoluteFile().getCanonicalFile());
+		util.addToExpected(config.getServerApps());
 	}
 
 	public void synchronizeApplications() throws Exception {
@@ -78,6 +78,6 @@ public class FileSynchronizer {
 			w.append(content);
 			w.close();
 		}
-		util.addToExpected(anchorFile.getAbsoluteFile().getCanonicalFile());
+		util.addToExpected(anchorFile);
 	}
 }

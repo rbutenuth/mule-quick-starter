@@ -21,8 +21,8 @@ public class SynchronizeUtil {
 		changesDetected = false;
 	}
 
-	public void addToExpected(File node) {
-		nodesExpectedInDest.add(node);
+	public void addToExpected(File node) throws IOException {
+		nodesExpectedInDest.add(node.getAbsoluteFile().getCanonicalFile());
 	}
 	
 	public void syncFileOrDirectory(File sourceNode, File destNode) throws IOException {
@@ -46,7 +46,7 @@ public class SynchronizeUtil {
 	}
 
 	private void deleteUnexpectedFile(File file) throws IOException {
-		if (!nodesExpectedInDest.contains(file)) {
+		if (!nodesExpectedInDest.contains(file.getAbsoluteFile().getCanonicalFile())) {
 			if (!file.delete()) {
 				throw new IOException("Could not delete " + file);
 			}
@@ -57,7 +57,7 @@ public class SynchronizeUtil {
 		for (File node : dir.listFiles()) {
 			deleteUnexpectedNodes(node);
 		}
-		if (!nodesExpectedInDest.contains(dir)) {
+		if (!nodesExpectedInDest.contains(dir.getAbsoluteFile().getCanonicalFile())) {
 			if (!dir.delete()) {
 				throw new IOException("Could not delete " + dir);
 			}
@@ -89,7 +89,7 @@ public class SynchronizeUtil {
 			File destNode = new File(destDir, name);
 			syncFileOrDirectory(sourceNode, destNode);
 		}
-		nodesExpectedInDest.add(destDir.getAbsoluteFile().getCanonicalFile());
+		addToExpected(destDir);
 	}
 
 	private void syncFile(File source, File dest) throws IOException {
@@ -97,7 +97,7 @@ public class SynchronizeUtil {
 			bytesCopied += copyFile(source, dest);
 			changesDetected = true;
 		}
-		nodesExpectedInDest.add(dest.getAbsoluteFile().getCanonicalFile());
+		addToExpected(dest);
 	}
 
 	private static long copyFile(File sourceFile, File targetFile) throws IOException {
