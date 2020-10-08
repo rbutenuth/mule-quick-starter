@@ -35,9 +35,7 @@ public class FileSynchronizer {
 		// META-INF
 		util.syncFileOrDirectory(new File(workspaceAppTargetDir, "META-INF"), new File(muleAppDir, "META-INF"));
 				
-		if (util.haveDectectedChanges()) {
-			touchAnchorFile(application);
-		}
+		handleAnchorFile(application, util.haveDectectedChanges());
 	}
 	
 	private void runMavenWhenPomIsChangedOrMissing(File workspaceAppDir, File muleAppDir, String application) throws Exception {
@@ -67,16 +65,18 @@ public class FileSynchronizer {
 		}
 	}
 
-	private void touchAnchorFile(String application) throws IOException {
-		final String content = "Delete this file while Mule is running to remove the artifact in a clean way.";
+	private void handleAnchorFile(String application, boolean touch) throws IOException {
 		String name = application + "-anchor.txt";
 		File anchorFile = new File(config.getServerApps(), name);
-		if (anchorFile.isFile()) {
-			anchorFile.setLastModified(System.currentTimeMillis());
-		} else {
-			Writer w = new FileWriter(anchorFile);
-			w.append(content);
-			w.close();
+		if (touch) {
+			final String content = "Delete this file while Mule is running to remove the artifact in a clean way.";
+			if (anchorFile.isFile()) {
+				anchorFile.setLastModified(System.currentTimeMillis());
+			} else {
+				Writer w = new FileWriter(anchorFile);
+				w.append(content);
+				w.close();
+			}
 		}
 		util.addToExpected(anchorFile);
 	}
