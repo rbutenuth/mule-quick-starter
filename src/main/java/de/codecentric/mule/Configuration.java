@@ -3,23 +3,26 @@ package de.codecentric.mule;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Configuration {
 	private OperatingSystem os;
 	private File workspaceDir;
 	private File muleHome;
-	private List<String> applications;
+	private Set<String> applications;
 	private boolean run;
 	private boolean withDebug;
 	private int port;
 	private boolean stop;
 	private boolean kill;
 	private boolean synchronize;
+	private boolean update;
 
 	public Configuration(String[] args) throws IOException {
 		os = OperatingSystem.determineOperatingSystem();
-		applications = new ArrayList<>();
+		applications = new LinkedHashSet<>();
 		workspaceDir = new File("..").getAbsoluteFile().getCanonicalFile();
 		muleHome = new File(new File(workspaceDir, ".."), "mule-enterprise-standalone-4.3.0").getCanonicalFile();
 		port = 4712;
@@ -48,6 +51,11 @@ public class Configuration {
 				i++;
 			} else if ("-c".equals(args[i])) {
 				synchronize = true;
+				i++;
+			} else if ("-u".equals(args[i])) {
+				// -u implies -c
+				synchronize = true;
+				update = true; 
 				i++;
 			} else {
 				applications.add(args[i]);
@@ -80,6 +88,10 @@ public class Configuration {
 		return synchronize;
 	}
 
+	public boolean isUpdate() {
+		return update;
+	}
+
 	public int getPort() {
 		return port;
 	}
@@ -92,7 +104,11 @@ public class Configuration {
 		return muleHome;
 	}
 
-	public List<String> getApplications() {
+	public void addApplication(String name) {
+		applications.add(name);
+	}
+	
+	public Set<String> getApplications() {
 		return applications;
 	}
 

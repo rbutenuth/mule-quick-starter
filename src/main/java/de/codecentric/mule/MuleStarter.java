@@ -1,5 +1,6 @@
 package de.codecentric.mule;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -32,11 +33,25 @@ public class MuleStarter {
 		if (config.isSynchronize()) {
 			// For all applications, check is a Maven build is necessary, after that synchronize files/directories
 			FileSynchronizer synchronizer = new FileSynchronizer(config);
+			if (config.isUpdate()) {
+				addDeployedApps(config);
+			}
 			synchronizer.synchronizeApplications();
 		}
 
 		if (config.isRun()) {
 			startMule(config);
+		}
+	}
+
+	private static void addDeployedApps(Configuration config) {
+		final String ANCHOR = "-anchor.txt";
+		File appDir = config.getServerApps();
+		for (String name : appDir.list()) {
+			if (name.endsWith(ANCHOR)) {
+				String appName = name.substring(0, name.length() - ANCHOR.length());
+				config.addApplication(appName);
+			}
 		}
 	}
 

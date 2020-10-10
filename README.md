@@ -12,6 +12,7 @@ A tool for faster startup of Mule applications from AnypointStudio
 * -s stop the quick starter by connecting to the port (see -p)
 * -k kill the service wrapper via pkill (Linux) / taskkill (Windows)
 * -c copy (synchronize) Mule applications from the workspace to the server app directory
+* -u Like copy, but list of applications is the union from the command line and the applications already deployed on the server (determined by anchor files)
 
 The options may be followed by a list of application names (the directories in the workspace).
 When opton -c is active, these applications will be synchronized from the workspace to the 
