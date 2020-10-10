@@ -24,7 +24,7 @@ public class Configuration {
 		os = OperatingSystem.determineOperatingSystem();
 		applications = new LinkedHashSet<>();
 		workspaceDir = new File("..").getAbsoluteFile().getCanonicalFile();
-		muleHome = new File(new File(workspaceDir, ".."), "mule-enterprise-standalone-4.3.0").getCanonicalFile();
+		muleHome = determineMuleHome();
 		port = 4712;
 		int i = 0;
 		while (i < args.length) {
@@ -55,7 +55,7 @@ public class Configuration {
 			} else if ("-u".equals(args[i])) {
 				// -u implies -c
 				synchronize = true;
-				update = true; 
+				update = true;
 				i++;
 			} else {
 				applications.add(args[i]);
@@ -107,7 +107,7 @@ public class Configuration {
 	public void addApplication(String name) {
 		applications.add(name);
 	}
-	
+
 	public Set<String> getApplications() {
 		return applications;
 	}
@@ -177,13 +177,24 @@ public class Configuration {
 	public String getMavenExecutable() {
 		return os.getMavenExecutable();
 	}
-	
+
 	public String getKillCommand() {
 		return os.getKillCommand();
 	}
 
 	public String getWrapperConfPath() {
 		return path(getMuleHome(), "conf", "wrapper.conf");
+	}
+
+	private File determineMuleHome() throws IOException {
+		String muleHome = System.getenv("MULE_HOME");
+		if (muleHome != null) {
+			File dir = new File(muleHome);
+			if (dir.isDirectory()) {
+				return dir;
+			}
+		}
+		return new File(new File(workspaceDir, ".."), "mule-enterprise-standalone-4.3.0").getCanonicalFile();
 	}
 
 	private String path(File base, String... elements) {
