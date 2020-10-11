@@ -23,7 +23,7 @@ public class Configuration {
 	public Configuration(String[] args) throws IOException {
 		os = OperatingSystem.determineOperatingSystem();
 		applications = new LinkedHashSet<>();
-		workspaceDir = new File("..").getAbsoluteFile().getCanonicalFile();
+		workspaceDir = determineWorkspaceDir();
 		muleHome = determineMuleHome();
 		port = 4712;
 		int i = 0;
@@ -184,6 +184,17 @@ public class Configuration {
 
 	public String getWrapperConfPath() {
 		return path(getMuleHome(), "conf", "wrapper.conf");
+	}
+
+	private File determineWorkspaceDir() throws IOException {
+		String workspaceDir = System.getenv("MULE_WORKSPACE");
+		if (workspaceDir != null) {
+			File dir = new File(workspaceDir);
+			if (dir.isDirectory()) {
+				return dir;
+			}
+		}
+		return new File("..").getAbsoluteFile().getCanonicalFile();
 	}
 
 	private File determineMuleHome() throws IOException {
