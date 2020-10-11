@@ -39,9 +39,6 @@ public enum OperatingSystem {
 	abstract String getKillCommand();
 	
 	public static OperatingSystem determineOperatingSystem() {
-		// possible values:
-		//  - "Windows 10" / "amd64"
-		//  - ??? (for Linux?)
 		String name = System.getProperty("os.name").toLowerCase();
 		String arch = System.getProperty("os.arch");
 		
