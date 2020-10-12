@@ -81,8 +81,8 @@ list of deployed applications is determined by looking for anchor files.
 ## Debugging
 
 When you want to debug a standalone Mule server, you have to copy the directory mule-debugger-x.y.z-mule-server-plugin from the Mule server
-embedded in AnypointStudio to your standalone server (see 
-[MuleSoft Documentation](https://docs.mulesoft.com/studio/7.3/to-start-server-debug-mode Debug Your Application on a Remote Mule Instance from Studio)
+embedded in AnypointStudio to your standalone server, see 
+[MuleSoft Documentation](https://docs.mulesoft.com/studio/7.3/to-start-server-debug-mode "Debug Your Application on a Remote Mule Instance from Studio")
 for details. Then add the command line option -d. After startup, create a "Remote Mule Application" as a new debug configuration and start it as debug.
 
 After that you can set breakpoints and debug your application in the same ways as an application started within AnypointStudio.
