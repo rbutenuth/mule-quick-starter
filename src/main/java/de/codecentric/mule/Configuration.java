@@ -125,16 +125,9 @@ public class Configuration {
 		cmdList.add("wrapper.working.dir=" + getMuleHomeBinPath());
 		cmdList.add("wrapper.app.parameter.1=-Dmule.simpleLog");
 		if (withDebug) {
+			// wrapper.app.parameter.1=-M-Dmule.debug.enable wrapper.app.parameter.2=true
 			cmdList.add("wrapper.app.parameter.2=-M-Dmule.debug.enable");
 			cmdList.add("wrapper.app.parameter.3=true");
-			cmdList.add("wrapper.app.parameter.4=-M-Dmule.debug.port");
-			cmdList.add("wrapper.app.parameter.5=6666");
-			cmdList.add("wrapper.app.parameter.6=-M-Dmule.timeout.disable");
-			cmdList.add("wrapper.app.parameter.7=true");
-			cmdList.add("wrapper.app.parameter.8=-M-Dmule.debug.suspend");
-			cmdList.add("wrapper.app.parameter.9=false");
-			cmdList.add("wrapper.app.parameter.10=-M-agentlib:jdwp=transport");
-			cmdList.add("wrapper.app.parameter.11=dt_socket,server=y,suspend=n,address=57310");
 		}
 		return cmdList;
 	}

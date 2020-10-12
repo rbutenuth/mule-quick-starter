@@ -80,16 +80,19 @@ list of deployed applications is determined by looking for anchor files.
 
 ## Debugging
 
-I already added support for debugging, but currently it is not usable. MuleSoft has documented how to start a Mule server for remote
-debugging, it worked for Mule 3, but it does not work for Mule 4. I already opened a support case, but currently I wait for an answer.
-So the -d switch is useless so far.
+When you want to debug a standalone Mule server, you have to copy the directory mule-debugger-x.y.z-mule-server-plugin from the Mule server
+embedded in AnypointStudio to your standalone server (see 
+[MuleSoft Documentation](https://docs.mulesoft.com/studio/7.3/to-start-server-debug-mode Debug Your Application on a Remote Mule Instance from Studio)
+for details. Then add the command line option -d. After startup, create a "Remote Mule Application" as a new debug configuration and start it as debug.
+
+After that you can set breakpoints and debug your application in the same ways as an application started within AnypointStudio.
 
 ## Summary of command line options
 
 * -w <workspace-directory>, default is ../ or value of the environment variable MULE_WORKSPACE (if set)
 * -m <mule-home-directory>, default is ../../mule-enterprise-standalone-4.3.0/ or value of the environment variable MULE_HOME (if set).
 * -r run Mule applications
-* -d debug Mule applications (does currently not work)
+* -d debug Mule applications (with remote debugging within AnypointStudio)
 * -p port for communicating with the starter for clean termination, default 4712
 * -s stop the quick starter by connecting to the port (see -p)
 * -k kill the service wrapper via pkill (Linux) / taskkill (Windows)
@@ -111,5 +114,5 @@ wrapper, the pkill command, and the way how to call Maven. You will find all of 
 # Summary
 
 This whole tool is just a workaround. I would be glad if it is no longer necessary because MuleSoft adds the functionality to AnypointStudio 7. 
-It has its quirks, and currently debugging is not possible. But it may make your development a little bit faster by saving time for deployments.
+It has its quirks, you have to do some more configuration. But it may make your development a little bit faster by saving time for deployments.
 
