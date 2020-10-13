@@ -9,20 +9,20 @@ public class FileSynchronizer {
 	private Configuration config;
 	private SynchronizeUtil util;
 
-	public FileSynchronizer(Configuration config) throws IOException {
+	public FileSynchronizer(Configuration config) {
 		this.config = config;
 		util = new SynchronizeUtil();
 		util.addToExpected(config.getServerApps());
 	}
 
-	public void synchronizeApplications() throws Exception {
+	public void synchronizeApplications() throws IOException {
 		for (String appName : config.getApplications()) {
 			syncFiles(appName);
 		}
 		util.deleteUnexpectedNodes(config.getServerApps());
 	}
 	
-	public void syncFiles(String application) throws Exception {
+	public void syncFiles(String application) throws IOException {
 		File workspaceAppDir = config.getWorkspaceApp(application);
 		File workspaceAppTargetDir = new File(workspaceAppDir, "target");
 		File muleAppDir = config.getServerMuleApp(application);
@@ -38,7 +38,7 @@ public class FileSynchronizer {
 		handleAnchorFile(application, util.haveDectectedChanges());
 	}
 	
-	private void runMavenWhenPomIsChangedOrMissing(File workspaceAppDir, File muleAppDir, String application) throws Exception {
+	private void runMavenWhenPomIsChangedOrMissing(File workspaceAppDir, File muleAppDir, String application) throws IOException {
 		File workspacePom = new File(workspaceAppDir, "pom.xml");
 		File muleAppDirPom = new File(new File(new File(new File(muleAppDir, "META-INF"), "mule-src"), application), "pom.xml");
 		boolean haveToRunMavenBuild = !muleAppDirPom.exists();
@@ -49,7 +49,7 @@ public class FileSynchronizer {
 	}
 
 
-	private void runMaven(File workspaceAppDir) throws Exception {
+	private void runMaven(File workspaceAppDir) throws IOException {
 		String[] cmdarray = new String[] { config.getMavenExecutable(), "clean", "package", "-DskipTests=true" };
 		Process p = Runtime.getRuntime().exec(cmdarray, null /* String[] env, null defaults to env of current VM */,
 				workspaceAppDir /* working dir */);
@@ -57,11 +57,15 @@ public class FileSynchronizer {
 		stderr.start();
 		TextForwarder stdout = new TextForwarder(p.getInputStream(), System.out, "stdout");
 		stdout.start();
-		int exitCode = p.waitFor();
-		stdout.join();
-		stderr.join();
-		if (exitCode != 0) {
-			System.out.println("exit code of Maven: " + exitCode);
+		try {
+			int exitCode = p.waitFor();
+			stdout.join();
+			stderr.join();
+			if (exitCode != 0) {
+				System.out.println("exit code of Maven: " + exitCode);
+			}
+		} catch (InterruptedException e) {
+			throw new IOException("Maven probably not finished due to interrupt."); 
 		}
 	}
 

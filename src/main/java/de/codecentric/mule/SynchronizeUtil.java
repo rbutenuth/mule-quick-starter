@@ -12,17 +12,15 @@ import java.util.Set;
 
 public class SynchronizeUtil {
 	private Set<File> nodesExpectedInDest;
-	private long bytesCopied;
 	private boolean changesDetected;
 
 	public SynchronizeUtil() {
 		nodesExpectedInDest = new HashSet<>();
-		bytesCopied = 0L;
 		changesDetected = false;
 	}
 
-	public void addToExpected(File node) throws IOException {
-		nodesExpectedInDest.add(node.getAbsoluteFile().getCanonicalFile());
+	public void addToExpected(File node) {
+		nodesExpectedInDest.add(absoluteCanonical(node));
 	}
 	
 	public void syncFileOrDirectory(File sourceNode, File destNode) throws IOException {
@@ -64,10 +62,6 @@ public class SynchronizeUtil {
 		}
 	}
 
-	public long getBytesCopied() {
-		return bytesCopied;
-	}
-
 	public boolean haveDectectedChanges() {
 		return changesDetected;
 	}
@@ -94,14 +88,13 @@ public class SynchronizeUtil {
 
 	private void syncFile(File source, File dest) throws IOException {
 		if (haveToCopy(source, dest)) {
-			bytesCopied += copyFile(source, dest);
+			copyFile(source, dest);
 			changesDetected = true;
 		}
 		addToExpected(dest);
 	}
 
-	private static long copyFile(File sourceFile, File targetFile) throws IOException {
-		long copied = 0;
+	private static void copyFile(File sourceFile, File targetFile) throws IOException {
 		try (InputStream source = new FileInputStream(sourceFile);
 				OutputStream target = new FileOutputStream(targetFile)) {
 			byte[] buffer = new byte[1 << 16];
@@ -109,13 +102,10 @@ public class SynchronizeUtil {
 			do {
 				read = source.read(buffer);
 				if (read > 0) {
-					copied += read;
 					target.write(buffer, 0, read);
 				}
 			} while (read > 0);
 		}
-
-		return copied;
 	}
 
 	private static void deleteFileOrDirectory(File node) throws IOException {
@@ -155,6 +145,15 @@ public class SynchronizeUtil {
 			return haveTo;
 		} else {
 			return true;
+		}
+	}
+
+	private static File absoluteCanonical(File file) {
+		file = file.getAbsoluteFile();
+		try {
+			return file.getCanonicalFile();
+		} catch (IOException e) {
+			return file;
 		}
 	}
 }

@@ -7,7 +7,7 @@ import java.net.Socket;
 
 public class MuleStarter {
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		Configuration config = new Configuration(args);
 
 		if (config.isStop()) {
@@ -33,11 +33,21 @@ public class MuleStarter {
 			if (config.isUpdate()) {
 				addDeployedApps(config);
 			}
-			synchronizer.synchronizeApplications();
+			try {
+				synchronizer.synchronizeApplications();
+			} catch (IOException e) {
+				System.err.println("Synchronization failed: " + e.getMessage());
+				System.exit(1);
+			}
 		}
 
 		if (config.isRun()) {
-			startMule(config);
+			try {
+				startMule(config);
+			} catch (Exception e) {
+				System.err.println("Start of Mule server failed: " + e.getMessage());
+				System.exit(1);
+			}
 		}
 	}
 
@@ -71,12 +81,10 @@ public class MuleStarter {
 		});
 		waitOnSocketForShutdown(config);
 		p.destroy();
-		int exitCode = p.waitFor();
+		p.waitFor();
 		stdout.join();
 		stderr.join();
-		if (exitCode != 0) {
-			System.out.println("exit code of Mule: " + exitCode);
-		}
+		System.out.println("Mule has stopped.");
 	}
 
 	private static void waitOnSocketForShutdown(Configuration config) throws IOException {

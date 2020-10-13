@@ -21,7 +21,7 @@ public class Configuration {
 	private boolean synchronize;
 	private boolean update;
 
-	public Configuration(String[] args) throws IOException {
+	public Configuration(String[] args) {
 		os = OperatingSystem.determineOperatingSystem();
 		applications = new LinkedHashSet<>();
 		workspaceDir = determineWorkspaceDir();
@@ -187,26 +187,26 @@ public class Configuration {
 		return path(getMuleHome(), "conf", "wrapper.conf");
 	}
 
-	private File determineWorkspaceDir() throws IOException {
+	private File determineWorkspaceDir() {
 		String workspaceDir = System.getenv("MULE_WORKSPACE");
 		if (workspaceDir != null) {
 			File dir = new File(workspaceDir);
 			if (dir.isDirectory()) {
-				return dir;
+				return absoluteCanonical(dir);
 			}
 		}
-		return new File("..").getAbsoluteFile().getCanonicalFile();
+		return absoluteCanonical(new File(".."));
 	}
 
-	private File determineMuleHome() throws IOException {
+	private File determineMuleHome() {
 		String muleHome = System.getenv("MULE_HOME");
 		if (muleHome != null) {
 			File dir = new File(muleHome);
 			if (dir.isDirectory()) {
-				return dir;
+				return absoluteCanonical(dir);
 			}
 		}
-		return new File(new File(workspaceDir, ".."), "mule-enterprise-standalone-4.3.0").getCanonicalFile();
+		return absoluteCanonical(new File(new File(workspaceDir, ".."), "mule-enterprise-standalone-4.3.0"));
 	}
 
 	private String path(File base, String... elements) {
@@ -255,14 +255,28 @@ public class Configuration {
 		}
 	}
 	
-	private void usage(String errorMessage) throws IOException {
+	private File absoluteCanonical(File file) {
+		file = file.getAbsoluteFile();
+		try {
+			return file.getCanonicalFile();
+		} catch (IOException e) {
+			return file;
+		}
+	}
+	
+	private void usage(String errorMessage) {
 		System.out.println(errorMessage);
 		InputStream is = getClass().getResourceAsStream("usage.txt");
 		byte[] buffer = new byte[1024];
-		int got = is.read(buffer);
-		while (got != -1) {
-			System.out.write(buffer, 0, got);
+		int got;
+		try {
 			got = is.read(buffer);
+			while (got != -1) {
+				System.out.write(buffer, 0, got);
+				got = is.read(buffer);
+			}
+		} catch (IOException e) {
+			// Hopefully never happens. When it happens: No usage information. :-(
 		}
 	}
 }
