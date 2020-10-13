@@ -9,9 +9,6 @@ public class MuleStarter {
 
 	public static void main(String[] args) throws Exception {
 		Configuration config = new Configuration(args);
-		System.out.println("workspace: " + config.getWorkspaceDir().getAbsolutePath());
-		System.out.println("Mule home: " + config.getMuleHome().getAbsolutePath());
-		System.out.println();
 
 		if (config.isStop()) {
 			try {
@@ -88,6 +85,5 @@ public class MuleStarter {
 		Socket s = socket.accept();
 		s.close();
 		socket.close();
-		System.out.println("Terminating");
 	}
 }

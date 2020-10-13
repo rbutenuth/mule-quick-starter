@@ -1,0 +1,13 @@
+
+Usage: MuleStarter options list-of-applications
+
+Valid options:
+* -w <workspace-directory>, default is ../ or value of the environment variable MULE_WORKSPACE (if set)
+* -m <mule-home-directory>, default is ../../mule-enterprise-standalone-4.3.0/ or value of the environment variable MULE_HOME (if set).
+* -r run Mule applications
+* -d debug Mule applications (with remote debugging within AnypointStudio)
+* -p port for communicating with the starter for clean termination, default 4712
+* -s stop the quick starter by connecting to the port (see -p)
+* -k kill the service wrapper via pkill (Linux) / taskkill (Windows)
+* -c copy (synchronize) Mule applications from the workspace to the server app directory
+* -u Like copy, but list of applications is the union from the command line and the applications already deployed on the server (determined by anchor files)

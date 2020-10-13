@@ -2,6 +2,7 @@ package de.codecentric.mule;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,6 +27,11 @@ public class Configuration {
 		workspaceDir = determineWorkspaceDir();
 		muleHome = determineMuleHome();
 		port = 4712;
+
+		if (args.length == 0) {
+			usage("Missing options");
+		}
+		
 		int i = 0;
 		while (i < args.length) {
 			if ("-m".equals(args[i])) {
@@ -57,6 +63,8 @@ public class Configuration {
 				synchronize = true;
 				update = true;
 				i++;
+			} else if (args[i].startsWith("-")) {
+				usage("unknown option " + args[i]);
 			} else {
 				applications.add(args[i]);
 				i++;
@@ -244,6 +252,17 @@ public class Configuration {
 				throw new IllegalArgumentException(
 						"mule-artifact.json missing in directory: " + appDir.getAbsolutePath());
 			}
+		}
+	}
+	
+	private void usage(String errorMessage) throws IOException {
+		System.out.println(errorMessage);
+		InputStream is = getClass().getResourceAsStream("usage.txt");
+		byte[] buffer = new byte[1024];
+		int got = is.read(buffer);
+		while (got != -1) {
+			System.out.write(buffer, 0, got);
+			got = is.read(buffer);
 		}
 	}
 }
