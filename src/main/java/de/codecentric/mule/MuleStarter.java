@@ -18,12 +18,10 @@ public class MuleStarter {
 		Configuration config = new Configuration(args);
 
 		if (config.isStop()) {
-			try {
-				Socket s = new Socket("localhost", config.getPort());
+			try (Socket s = new Socket("localhost", config.getPort())) {
 				InputStream is = s.getInputStream();
 				int b = is.read();
 				is.close();
-				s.close();
 				System.out.println("stopped Mule, value was: " + b);
 			} catch (IOException e) {
 				System.out.println("Stopping via socket connect failed: " + e.getMessage());
@@ -39,7 +37,8 @@ public class MuleStarter {
 		}
 
 		if (config.isSynchronize()) {
-			// For all applications, check is a Maven build is necessary, after that synchronize files/directories
+			// For all applications, check is a Maven build is necessary, after that
+			// synchronize files/directories
 			FileSynchronizer synchronizer = new FileSynchronizer(config);
 			if (config.isUpdate()) {
 				addDeployedApps(config);
@@ -107,16 +106,14 @@ public class MuleStarter {
 
 	private static void waitOnSocketForShutdown(Configuration config, Process p) throws Exception {
 		System.out.println("Wait for socket connection on port " + config.getPort());
-		ServerSocket socket = new ServerSocket(config.getPort());
-		Socket s = socket.accept();
-		p.destroy();
-		p.waitFor();
-		System.out.println("Mule has stopped.");
-		OutputStream os = s.getOutputStream();
-		os.write(42);
-		os.flush();
-		os.close();
-		s.close();
-		socket.close();
+		try (ServerSocket socket = new ServerSocket(config.getPort()); Socket s = socket.accept()) {
+			p.destroy();
+			p.waitFor();
+			System.out.println("Mule has stopped.");
+			try (OutputStream os = s.getOutputStream()) {
+				os.write(42);
+				os.flush();
+			}
+		}
 	}
 }
