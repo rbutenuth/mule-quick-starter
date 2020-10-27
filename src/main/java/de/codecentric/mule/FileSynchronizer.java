@@ -62,7 +62,7 @@ public class FileSynchronizer {
 			stdout.join();
 			stderr.join();
 			if (exitCode != 0) {
-				System.out.println("exit code of Maven: " + exitCode);
+				throw new IOException("Maven build failed");
 			}
 		} catch (InterruptedException e) {
 			throw new IOException("Maven probably not finished due to interrupt."); 
