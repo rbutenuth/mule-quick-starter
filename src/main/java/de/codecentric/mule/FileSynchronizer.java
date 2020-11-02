@@ -34,7 +34,13 @@ public class FileSynchronizer {
 		util.syncFileOrDirectory(new File(workspaceAppTargetDir, "repository"), new File(muleAppDir, "repository"));
 		// META-INF
 		util.syncFileOrDirectory(new File(workspaceAppTargetDir, "META-INF"), new File(muleAppDir, "META-INF"));
-				
+
+		// Use log4j2-test.xml instead log4j2.xml because this is (usually) configured to log to the console,
+		// while log4j.xml (in resources) usually logs to a file or some remote logging system (e.g. ELK).
+		File log4jtest = new File(new File(workspaceAppTargetDir, "test-classes"), "log4j2-test.xml");
+		File log4j = new File(muleAppDir, "log4j2.xml");
+		util.syncFile(log4jtest, log4j);
+		
 		handleAnchorFile(application, util.haveDectectedChanges());
 	}
 	

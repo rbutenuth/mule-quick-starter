@@ -86,7 +86,7 @@ public class SynchronizeUtil {
 		addToExpected(destDir);
 	}
 
-	private void syncFile(File source, File dest) throws IOException {
+	public void syncFile(File source, File dest) throws IOException {
 		if (haveToCopy(source, dest)) {
 			copyFile(source, dest);
 			changesDetected = true;
