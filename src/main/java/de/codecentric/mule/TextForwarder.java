@@ -21,7 +21,8 @@ class TextForwarder extends Thread {
         this.destination = destination;
     }
 
-    public void run() {
+    @Override
+	public void run() {
         BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
         String line = null;
         try {
