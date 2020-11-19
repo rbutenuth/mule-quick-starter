@@ -2,6 +2,8 @@
 
 A tool for faster startup of Mule applications from AnypointStudio. 
 
+My hope is this will be integrated in Studio 7, I opened an idea for that in the Idea Portal: [Improve Startup Time from Mule Apps in Studio 7](https://help.mulesoft.com/s/ideas#0872T000000XaMBQA0). Upvotes welcome. :-)
+
 # Introduction
 
 With the switch from AnypointStudio 6 (Mule 3) to AnypointStudio 7 (Mule 4), MuleSoft dropped the feature to start a Mule application without Maven.
